@@ -1,10 +1,38 @@
-import { Button, Checkbox, Form, Input } from 'antd'
+import { Button, Checkbox, Form, Input, Typography } from 'antd'
 import { useEffect, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { auth } from '../../services/auth/auth'
 
-export default function AuthorizeForm() {
+const { Paragraph } = Typography
 
-  const onFinish = (values: any) => {
-    console.log('Success:', values)
+type Props = {}
+
+export default function AuthorizeForm({ }: Props) {
+
+  const [error, setError] = useState<boolean>(false)
+
+  const navigate = useNavigate()
+
+  const onFinish = () => {
+    const data = {
+      username: userName,
+      password: password
+    }
+    async function fetchData() {
+      try {
+        const status = await auth(data)
+        if (status) {
+          navigate('/')
+        } else {
+          setError(true)
+        }
+      } catch (error) {
+        console.log('Ошибка при выполнении авторизации:', error)
+      }
+    }
+
+    fetchData()
+
   }
 
   const [formState, setFormState] = useState<boolean>(false)
@@ -13,6 +41,7 @@ export default function AuthorizeForm() {
   const [checkbox, setCheckbox] = useState<boolean>(false)
 
   const changeValue = (value: string | boolean, type: string) => {
+    setError(false)
     switch (type) {
       case 'userName':
         setUserName(value as string)
@@ -64,6 +93,9 @@ export default function AuthorizeForm() {
             onChange={(e) => changeValue(e.target.value, 'password')}
           />
         </Form.Item>
+        {error &&
+          <Paragraph type="danger" style={{ textAlign: 'center' }}>Invalid data</Paragraph>
+        }
 
         <Form.Item name="remember" wrapperCol={{ offset: 8, span: 16 }}>
           <Checkbox

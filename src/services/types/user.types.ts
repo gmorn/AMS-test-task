@@ -8,3 +8,8 @@ export type T_user = {
   image: string
   token: string
 }
+
+export type T_AuthData = {
+  username: string
+  password: string
+}
